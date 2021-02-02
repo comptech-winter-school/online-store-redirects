@@ -10,7 +10,7 @@ C) Predict probability for (query, category) (redirects)
 """
 from utils.category_tree import get_category_tree
 from utils.merge_tables import merge_product_external_id_to_categories
-
+from utils.cousins import cousin
 
 # (A)
 def make_negative_examples_from_searches(json_data, external_id_to_category, category_tree):
@@ -34,4 +34,6 @@ def make_negative_examples_from_searches(json_data, external_id_to_category, cat
     '89072600022': '1',
     '89072600015': '42',}}
     """
+
+
     pass
