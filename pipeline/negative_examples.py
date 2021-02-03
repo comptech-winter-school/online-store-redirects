@@ -15,6 +15,7 @@ from utils.merge_tables import merge_product_external_id_to_categories
 
 # (A)
 
+<<<<<<< HEAD
 def make_negative_examples_from_searches(json_data, external_id_to_category, category_tree):
         """
         Using file "420_searches.json"
@@ -33,6 +34,21 @@ def make_negative_examples_from_searches(json_data, external_id_to_category, cat
         '89072600022': '1',
         '89072600015': '42',}}
         """
+=======
+    :param json_data: list of dicts
+    :param external_id_to_category: результат работы ф-ии merge_product_external_id_to_categories
+    :param category_tree: anytree.Node(идея использования дерева - брать не прямого предка/потомка, а "брата-сестру"/"кузенов"/"тетю-дядю")
+    :return: pd.DataFrame with columns = [query: str, category_id: int]
+
+    Example of dict:
+    {'query': '0 70',
+    'amount': 1,
+    'products': {
+    '89072600018': '1',
+    '89072600022': '1',
+    '89072600015': '42',}}
+    """
+>>>>>>> 15061d5fef0ce8ba4629b70f8ca5e476d1d68e76
     with open(json_data) as ff:
         data = json.load(ff)
 
