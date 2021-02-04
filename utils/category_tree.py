@@ -39,3 +39,9 @@ def get_category_tree():
     (tree_dict[-1] contains root of category tree)
     """
     return read_pickle_object('resourses/category_tree/category_tree.obj')
+
+from anytree.search import find
+
+def get_node(id):
+    root = get_category_tree()
+    return find(root, lambda node: node.name == id)

@@ -1,7 +1,6 @@
 from random import randint
 from pickle import load
-from anytree.search import find
-from utils.category_tree import get_category_tree
+from utils.category_tree import get_category_tree, get_node
 
 def get_cousins(node):
     ancestor = node.parent
@@ -19,6 +18,4 @@ def get_cousin(node):
     return cousins[randint(0, n - 1)]
 
 def get_cousin_id(id):
-    root = get_category_tree()
-    node = find(root, lambda node: node.name == id)
-    return int(get_cousin(node).name)
+    return int(get_cousin(get_node(id)).name)

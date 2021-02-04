@@ -3,9 +3,10 @@ import Levenshtein
 import numpy as np
 from anytree.search import find
 from anytree import Node
+from utils.category_tree import get_node
 
 
-def get_relative_depth(id, tree):
+def get_absolute_depth(id):
     """
     Ожидается, что tree --- любая вершина (node). Этого достаточно,
     чтоб получить всё дерево. Передавать, например, list(nodes) излишне.
@@ -14,16 +15,13 @@ def get_relative_depth(id, tree):
     не фиксировано, глубина считается относительно корня. Default_category
     также может выступать корнем --- см. utils/category_tree/make_category_tree
     """
-    node = find(tree.root, lambda node: node.name == id)
-    return Node(node).depth
+    return get_node(id).depth
 
-def count_children(id, tree):
-    node = find(tree.root, lambda node: node.name == id)
-    return len(Node(node).children)
+def count_children(id):
+    return len(get_node(id).children)
 
-def count_descendants(id, tree):
-    node = find(tree.root, lambda node: node.name == id)
-    return len(Node(node).descendants)
+def count_descendants(id):
+    return len(get_node(id).descendants)
 
 def preprocessing_text(s):
     """
