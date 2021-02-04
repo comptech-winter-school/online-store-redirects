@@ -8,9 +8,6 @@ from utils.category_tree import get_node
 
 def get_absolute_depth(id):
     """
-    Ожидается, что tree --- любая вершина (node). Этого достаточно,
-    чтоб получить всё дерево. Передавать, например, list(nodes) излишне.
-
     В целях обеспечения переиспользования функции Default_category_id
     не фиксировано, глубина считается относительно корня. Default_category
     также может выступать корнем --- см. utils/category_tree/make_category_tree
