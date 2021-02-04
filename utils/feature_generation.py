@@ -1,7 +1,6 @@
 import pandas as pd
 import Levenshtein
 import numpy as np
-from make_sample import make_sample
 
 
 def preprocessing_text(s):
@@ -56,7 +55,7 @@ def get_features_for_data(path_to_data):
     :param data: pd.DataFrame - данные для обучения с колонками [query, category_id, category_name]
     :return data: pd.DataFrame - датафрейм с кучей признаков
     """
-    data = make_sample(path_to_data)
+    data = pd.read_csv(path_to_data + "/data_for_model.csv")
     brands, products = get_brands_and_products(path_to_data)
 
     data['query'] = data['query'].apply(preprocessing_text)
