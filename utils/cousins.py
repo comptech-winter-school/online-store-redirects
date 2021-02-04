@@ -1,6 +1,6 @@
 from random import randint
 from pickle import load
-from utils.category_tree import get_category_tree, get_node
+from utils.category_tree import get_node
 
 def get_cousins(node):
     ancestor = node.parent
