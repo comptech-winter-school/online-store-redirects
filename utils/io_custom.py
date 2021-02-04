@@ -1,9 +1,7 @@
-import pickle
-import anytree
-
+from pickle import load
 
 def read_pickle_object(path):
     t = None
     with open(path, 'rb') as f:
-        t = pickle.load(f)
+        t = load(f)
     return t
