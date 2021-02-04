@@ -5,14 +5,11 @@ A) Making negative examples
 B) Offering categories for redirect(Filter)
 C) Predict probability for (query, category) (redirects)
 """
-import sys
-sys.path.append('utils')
-
 import pandas as pd
 import re
 from json import load
-from merge_tables import merge_product_external_id_to_categories
-from cousins import get_cousin_id
+from utils.merge_tables import merge_product_external_id_to_categories
+from utils.cousins import get_cousin_id
 
 def make_negative_examples_from_searches(json_path):
     """

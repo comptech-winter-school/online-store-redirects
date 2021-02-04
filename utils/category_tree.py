@@ -9,9 +9,11 @@ def make_category_tree():
     with open('resourses/category_tree/categories.csv', newline='') as csvfile:
         rdr = reader(csvfile, delimiter=',')
         for row in rdr:
+            if (row[1] == 'id'):
+                continue
             if (not row[2]):
                 row[2] = 0
-            parents[int(row[1])] = int(row[2])
+            parents[int(row[1])] = int(float(row[2]))
 
     parents = {k: v for k, v in sorted(parents.items(),
         key = lambda item: item[1])}
@@ -28,7 +30,7 @@ def make_category_tree():
     with open('resourses/category_tree/category_tree.obj', 'wb') as category_tree:
         dump(root, category_tree)
 
-from io_custom import read_pickle_object
+from utils.io_custom import read_pickle_object
 
 def get_category_tree():
     """

@@ -1,7 +1,7 @@
 from random import randint
 from pickle import load
 from anytree.search import find
-from category_tree import get_category_tree
+from utils.category_tree import get_category_tree
 
 def get_cousins(node):
     ancestor = node.parent
