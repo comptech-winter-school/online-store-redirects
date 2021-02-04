@@ -9,83 +9,115 @@ B) Offering categories for redirect(Filter)
 C) Predict probability for (query, category) (redirects)
 """
 from utils.merge_tables import merge_product_external_id_to_categories
+import pandas as pd
+import numpy as np
 
 
 class Filter:
     def __init__(self, external_id_to_category):
         """
+        Конструктор класса.
 
-        :param external_id_to_category: результат работы ф-ии merge_product_external_id_to_categories
+        :param external_id_to_category: pd.DataFrame -  результат работы функции merge_product_external_id_to_categories.
         """
+
         self.external_id_to_category = external_id_to_category
 
-    def filter_multiple(self, ds):
+    def filter_multiple(self, sessions):
         """
-        For list of dicts
+        Фильтр для списка всех словарей (сессий из json файла [и нового, и старого])
 
-        :param ds: list of dicts
-        :return: list of dicts(you can get this dict by filter_single)
-        Example of "inner dict"
+        :param sessions: list of dicts from json files.
+        :return: list of dicts - с определенной внутренней структурой.
+
+        Пример структуры одного из словарей, содержащихся в возвращаемом списке:
         {
             "query": string,
             "categories": list of int
         }
 
-        ds example:
-        [
-        {'query': 'гель алое',
-         'search_results': ['99730300002', None, '99720100024', '99730300080'],
-        'views': [],
-        'purchases': []},
-        {'query': 'гель алое',
-         'search_results': ['99730300002', None, '99720100024', '99730300080'],
-        'views': [],
-        'purchases': []},
-        ]
-        """""
-        # TODO: refactor
-        tmp = []
-        for d in ds:
-            t = {}
-            t['query'] = d['query']
-            t['categories'] = self._get_categories(d)
-            tmp.append(t)
-        return tmp
-
-    def _get_categories(self, d):
+        Пример списка словарей sessions:
+        [{
+            'query': 'гель алое',
+            'search_results': ['99730300002', None, '99720100024', '99730300080'],
+            'views': [],
+            'purchases': []
+        },
+        {
+            'query': 'гель алое',
+            'search_results': ['99730300002', None, '99720100024', '99730300080'],
+            'views': [],
+            'purchases': []
+        }]
         """
 
-        :param d: dict
-        :return: список категорий(желательно list, в будущем мб pd.Series)
+        queries_with_categories = []
 
-        d example:
-        {'query': 'гель алое',
-         'search_results': ['99730300002', None, '99720100024', '99730300080'],
-        'views': [],
-        'purchases': []}
+        for session in sessions:
+            current_pair_query_categories = {
+                'query': self._get_query_text_from_session(session),
+                'categories_ids': self._get_categories_for_session(session)
+            }
+            queries_with_categories.append(current_pair_query_categories)
+
+        return queries_with_categories
+
+    def _get_query_text_from_session(self, session):
+        """
+        Извлекает тест запроса из сессии.
+
+        :param session: dict - сессия из json файла.
+        :return: str - текст запроса.
+        """
+
+        return session['query']
+
+    def _get_categories_for_session(self, session):
+        """
+        Получает список уникальных идентификаторов категорий для конкретной сессии.
+
+        :param session: dict - сессия из json файла.
+        :return: list of int - список уникальных категорий. (в будущем мб pd.Series)
+
+        Пример входного словаря session:
+        {
+            'query': 'гель алое',
+            'search_results': ['99730300002', None, '99720100024', '99730300080'],
+            'views': [],
+            'purchases': []
+        }
 
         """
-        pass
 
-    def _get_category_id_for_external_id(self, id):
-        """
-        Ищет соответствующие категории для каждого id в self.external_id_to_category
+        return self._get_categories_by_external_ids(session['search_results'])
 
-        :param id: external_id
-        :return: list of category_ids
+    def _get_categories_by_external_ids(self, external_ids):
         """
-        pass
+        Получает список уникальных идентификаторов категорий для конкретного списка внешних идентификаторов продуктов.
 
-    def _get_categories_by_external_ids(self, ids):
+        :param external_ids: list of strings/int (may contain None) - список внешних идентификаторов продуктов из сессии.
+        :return: list of int - список уникальных идентификаторов категорий. (будущем мб pd.Series)
         """
-        Что делает:
-        0) подготовить ids: убрать None, перевести в int
-        1) берет external_id из ids
-        2) получить категории для каждого отдельного id с помощью _get_category_id_for_external_id
-        3) слить списки категорий от каждого отдельного external id в один список(возможно стоит использовать set и использовать .update())
-        4) возвращает список категорий
 
-        :param ids: list of strings/None/int(all to int, remove None)
-        :return: список категорий(желательно list, в будущем мб pd.Series)
+        unique_category_ids = set()
+
+        for external_id in external_ids:
+            if external_id is not None:
+                list_of_category_ids_for_external_id = self._get_category_ids_for_external_id(
+                    int(external_id))
+                if len(list_of_category_ids_for_external_id) > 0:
+                    unique_category_ids.update(
+                        list_of_category_ids_for_external_id)
+
+        return list(unique_category_ids)
+
+    def _get_category_ids_for_external_id(self, external_id):
         """
-        pass
+        Ищет соответствующие идентификаторы категорий для конкретного внешнего идентификатора продукта в self.external_id_to_category.
+        Чаще всего таких идентификаторов категорий несколько.
+
+        :param external_id: int - внешний идентификатор продукта.
+        :return: list of int - список идентификаторов категорий.
+        """
+
+        return list(self.external_id_to_category.query('external_id == @external_id')['category_id'].values)
