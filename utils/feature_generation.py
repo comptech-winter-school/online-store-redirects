@@ -1,7 +1,29 @@
 import pandas as pd
 import Levenshtein
 import numpy as np
+from anytree.search import find
+from anytree import Node
 
+
+def get_relative_depth(id, tree):
+    """
+    Ожидается, что tree --- любая вершина (node). Этого достаточно,
+    чтоб получить всё дерево. Передавать, например, list(nodes) излишне.
+
+    В целях обеспечения переиспользования функции Default_category_id
+    не фиксировано, глубина считается относительно корня. Default_category
+    также может выступать корнем --- см. utils/category_tree/make_category_tree
+    """
+    node = find(tree.root, lambda node: node.name == id)
+    return Node(node).depth
+
+def count_children(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    return len(Node(node).children)
+
+def count_descendants(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    return len(Node(node).descendants)
 
 def preprocessing_text(s):
     """
@@ -109,7 +131,7 @@ def create_data_with_features(path_to_data):
     )
     data['is_query_long'] = data['num_of_word_in_query'].apply(
         lambda num_of_word_in_query:
-        num_of_word_in_query > 50)
+        num_of_word_in_query > 50
     )
     # TODO добавить генерацию признаков с дерева категорий (3 штуки)
     # TODO добавить расстояние левенштейна
