@@ -3,6 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import roc_auc_score, f1_score, accuracy_score
 from sklearn.model_selection import cross_validate, RepeatedStratifiedKFold
 
 SCORING = ['accuracy', 'roc_auc', 'f1', 'precision', 'recall']
@@ -62,3 +63,12 @@ def save_pipeline(pipeline, path):
 
 def load_pipeline(path):
     return load(path)
+
+
+def predict_proba_pipeline(pipeline, X):
+    return pipeline.predict_proba(X)[:, 1]
+
+
+def score_pipeline(pipeline, X, y, score=roc_auc_score):
+    y_pred = predict_proba_pipeline(pipeline, X)
+    return score(y, y_pred)
