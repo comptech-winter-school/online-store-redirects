@@ -52,19 +52,20 @@ def create_data_with_features(path_to_data):
     """
     Загружает данные для обучения и генерирует для них.
 
-    :param data: pd.DataFrame - данные с колонками [query, category_id, category_name]
+    :param path_to_data: str - относительный путь к данным для обучения.
     :return data: pd.DataFrame - датафрейм с кучей признаков
     Оставлено для обратной совместимости с двумя блокнотами.
     """
     data = pd.read_csv(path_to_data + "/data_for_model.csv")
-    return get_data_with_feature(data)
+    return get_data_with_feature(data, path_to_data)
 
 
-def get_data_with_feature(data):
+def get_data_with_feature(data, path_to_data):
     """
     Генерирует признаки для обучающих и валидационных данных.
 
-    :param data: pd.DataFrame - обучающие или валидационные данные с колонками [query, category_id, category_name]
+    :param data: pd.DataFrame - обучающие или валидационные данные с колонками [query, category_id, category_name, is_redirect]
+    :param path_to_data: str - относительный путь к данным о брендах и продуктах.
     :return data: pd.DataFrame - датафрейм с кучей признаков
     """
     brands, products = get_brands_and_products_lists(path_to_data)
