@@ -1,3 +1,4 @@
+import Levenshtein
 from joblib import dump, load
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline, FeatureUnion
@@ -21,21 +22,40 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
         return X[self.col]
 
 
+class ExampleLevenshtein(BaseEstimator, TransformerMixin):
+    def __init__(self, col1, col2):
+        self.col1 = col1
+        self.col2 = col2
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+    def distance(self, a, b):
+        a = a.strip()
+        b = b.strip()
+        return Levenshtein.distance(a, b) / len(a) / len(b)
+
+    def transform(self, X, y=None, **fit_params):
+        X['lev'] = X.apply(lambda x: self.distance(x[self.col1], x[self.col2]), axis=1)
+        return X[['lev']]
+
+
+
 def make_tfidf_baseline(n_jobs=1):
     query = Pipeline([
         ('query', ColumnSelector(col='query')),
-        ('tfidf', TfidfVectorizer(ngram_range=(2, 3), analyzer='char_wb'))
+        ('tfidf', TfidfVectorizer(ngram_range=(2, 3), analyzer='char_wb', max_features=1000))
     ])
     category_name = Pipeline([
         ('category_name', ColumnSelector(col='category_name')),
-        ('tfidf', TfidfVectorizer(ngram_range=(2, 3), analyzer='char_wb'))
+        ('tfidf', TfidfVectorizer(ngram_range=(2, 3), analyzer='char_wb', max_features=1000))
     ])
 
     features = FeatureUnion([('query_feats', query), ('category_name', category_name)])
 
     pipeline = Pipeline([
         ('features', features),
-        ('clf', LogisticRegression(n_jobs=n_jobs, random_state=1))
+        ('clf', LogisticRegression(n_jobs=n_jobs, random_state=1, class_weight='balanced'))
     ])
     return pipeline
 
