@@ -107,13 +107,10 @@ def create_data_with_features(path_to_data):
         lambda query:
         np.min([len(word) for word in query.split(' ')])
     )
-    data['is_query_long'] = data['num_of_word_in_query'].apply(
-        lambda num_of_word_in_query:
-        num_of_word_in_query > 50)
-    )
+    data['is_query_long'] = data['len_of_query'].apply(lambda l: int(l > 50))
     # TODO добавить генерацию признаков с дерева категорий (3 штуки)
     # TODO добавить расстояние левенштейна
 
-    data=data.drop(columns = ['category_id', 'query', 'category_name'])
+    data = data.drop(columns=['category_id', 'query', 'category_name'])
 
     return data
