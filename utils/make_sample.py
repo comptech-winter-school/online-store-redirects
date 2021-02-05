@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 def preprocessing_true_redirects(true_redirs):
     """
     Удаляет неиспользуемые колоноки в датафрейме с подлинными редиректами.
@@ -9,7 +8,8 @@ def preprocessing_true_redirects(true_redirs):
     :param true_redirs: pd.DataFrame - датафрейм подлинных редиректов на правильную категорию.
     :returntrue_redirects: pd.DataFrame - обработанный pd.DataFrame.
     """
-    true_redirs = true_redirs.drop(columns=['redir_id', 'rule_id', 'start_date', 'parent_id'])
+    true_redirs = true_redirs.drop(
+        columns=['redir_id', 'rule_id', 'start_date', 'parent_id'])
     true_redirs['is_redirect'] = 1
     true_redirs.rename(columns={'category': 'category_name'}, inplace=True)
     return true_redirs
@@ -24,10 +24,13 @@ def preprocessing_false_redirects(false_redirs, categories):
     :param false_redirs: pd.DataFrame - сгенерированный датафрейм редиректов не на ту категорию.
     :return: обработанный pd.DataFrame 
     """
-    false_redirs['category_name'] = false_redirs['category_id_not_redir'].apply(lambda i: categories.query('id == @i')['name'].values[0])
+    false_redirs['category_name'] = false_redirs['category_id_not_redir'].apply(
+        lambda i: categories.query('id == @i')['name'].values[0])
 
-    false_redirs = false_redirs.drop(columns=['external_id', 'product_id', 'category_id'])
-    false_redirs.rename(columns={'category_id_not_redir': 'category_id'}, inplace=True)
+    false_redirs = false_redirs.drop(
+        columns=['external_id', 'product_id', 'category_id'])
+    false_redirs.rename(
+        columns={'category_id_not_redir': 'category_id'}, inplace=True)
     false_redirs['is_redirect'] = 0
     return false_redirs
 
