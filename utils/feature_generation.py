@@ -6,19 +6,18 @@ from anytree import Node
 from utils.category_tree import get_node
 
 
-def get_absolute_depth(id):
-    """
-    В целях обеспечения переиспользования функции Default_category_id
-    не фиксировано, глубина считается относительно корня. Default_category
-    также может выступать корнем --- см. utils/category_tree/make_category_tree
-    """
-    return get_node(id).depth
+def get_relative_depth(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    default = find(tree.root, lambda node: node.name == 872901)
+    return (node.depth - default.depth)
 
-def count_children(id):
-    return len(get_node(id).children)
+def count_children(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    return len(node.children)
 
-def count_descendants(id):
-    return len(get_node(id).descendants)
+def count_descendants(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    return len(node.descendants)
 
 def preprocessing_text(s):
     """
