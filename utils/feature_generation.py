@@ -2,8 +2,6 @@ import pandas as pd
 import Levenshtein
 import numpy as np
 from anytree.search import find
-from anytree import Node
-from utils.category_tree import get_node
 
 
 def get_relative_depth(id, tree):
