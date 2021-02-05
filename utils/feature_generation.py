@@ -67,12 +67,24 @@ def get_brands_and_products_lists(path_to_data):
 
 def create_data_with_features(path_to_data):
     """
-    Загружает датафрейм и генерирует новые признаки для него.
+    Загружает данные для обучения и генерирует для них.
 
-    :param data: pd.DataFrame - данные для обучения с колонками [query, category_id, category_name]
+    :param path_to_data: str - относительный путь к данным для обучения.
     :return data: pd.DataFrame - датафрейм с кучей признаков
+    Оставлено для обратной совместимости с двумя блокнотами.
     """
     data = pd.read_csv(path_to_data + "/data_for_model.csv")
+    return get_data_with_feature(data, path_to_data)
+
+
+def get_data_with_feature(data, path_to_data):
+    """
+    Генерирует признаки для обучающих и валидационных данных.
+
+    :param data: pd.DataFrame - обучающие или валидационные данные с колонками [query, category_id, category_name, is_redirect]
+    :param path_to_data: str - относительный путь к данным о брендах и продуктах.
+    :return data: pd.DataFrame - датафрейм с кучей признаков
+    """
     brands, products = get_brands_and_products_lists(path_to_data)
 
     data['query'] = data['query'].apply(preprocessing_text)
@@ -124,13 +136,10 @@ def create_data_with_features(path_to_data):
         lambda query:
         np.min([len(word) for word in query.split(' ')])
     )
-    data['is_query_long'] = data['num_of_word_in_query'].apply(
-        lambda num_of_word_in_query:
-        num_of_word_in_query > 50
-    )
+    data['is_query_long'] = data['len_of_query'].apply(lambda l: int(l > 50))
     # TODO добавить генерацию признаков с дерева категорий (3 штуки)
     # TODO добавить расстояние левенштейна
-
-    data=data.drop(columns = ['category_id', 'query', 'category_name'])
+    # TODO добавить косинусное расстояние через обученный посимвольный векторайзер
+    data = data.drop(columns=['category_id', 'query', 'category_name'])
 
     return data

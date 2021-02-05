@@ -10,6 +10,9 @@ import re
 from json import load
 from utils.merge_tables import merge_product_external_id_to_categories
 from utils.cousins import get_cousin_id
+import random
+random.seed(0)
+
 
 def make_negative_examples_from_searches(json_path):
     """
@@ -67,3 +70,50 @@ def make_negative_examples_from_searches(json_path):
     searches['category_id_not_redir'] = searches['category_id'].apply(lambda x: get_cousin_id(x))
 
     return searches
+
+
+def get_queries_from_sessions(json_path):
+    with open(json_path) as ff:
+        data = load(ff)
+    queries = set()
+    for x in data:
+        queries.add(x['query'])
+    queries = list(queries)
+    return queries
+
+
+def make_positive_examples(path, columns=['query', 'category_id', 'category'],
+                           to_columns=['query', 'category_id', 'category_name']):
+    df = pd.read_csv(path)
+    df = df[columns]
+    df.columns = to_columns
+    df['is_redirect'] = 1
+    return df
+
+
+def make_negative_examples(queries, positive_categories):
+    df = pd.DataFrame()
+    df['query'] = queries
+
+    tmp = []
+    for _ in range(len(queries)):
+        tmp.append(random.choice(positive_categories))
+    df['category_id'] = [x[0] for x in tmp]
+    df['category_name'] = [x[1] for x in tmp]
+    return df
+
+
+def make_dataset(positive_path, sessions_path, neg_fract=1., neg_size=None):
+    positive = make_positive_examples(positive_path)
+    queries = get_queries_from_sessions(sessions_path)
+    positive_categories = list(set(zip(positive['category_id'].tolist(), positive['category_name'].tolist())))
+    negative = make_negative_examples(queries, positive_categories)
+    negative = negative.sample(frac=1).reset_index(drop=True)
+    negative['is_redirect'] = 0
+    if neg_size:
+        negative_tmp = negative.iloc[:neg_size]
+    else:
+        negative_tmp = negative.iloc[:int(neg_fract * len(positive))]
+    data = pd.concat([positive, negative_tmp], ignore_index=True)
+    data = data.sample(frac=1).reset_index(drop=True)
+    return data, positive, negative
