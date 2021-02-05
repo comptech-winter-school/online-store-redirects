@@ -50,12 +50,23 @@ def get_brands_and_products_lists(path_to_data):
 
 def create_data_with_features(path_to_data):
     """
-    Загружает датафрейм и генерирует новые признаки для него.
+    Загружает данные для обучения и генерирует для них.
 
-    :param data: pd.DataFrame - данные для обучения с колонками [query, category_id, category_name]
+    :param data: pd.DataFrame - данные с колонками [query, category_id, category_name]
     :return data: pd.DataFrame - датафрейм с кучей признаков
+    Оставлено для обратной совместимости с двумя блокнотами.
     """
     data = pd.read_csv(path_to_data + "/data_for_model.csv")
+    return get_data_with_feature(data)
+
+
+def get_data_with_feature(data):
+    """
+    Генерирует признаки для обучающих и валидационных данных.
+
+    :param data: pd.DataFrame - обучающие или валидационные данные с колонками [query, category_id, category_name]
+    :return data: pd.DataFrame - датафрейм с кучей признаков
+    """
     brands, products = get_brands_and_products_lists(path_to_data)
 
     data['query'] = data['query'].apply(preprocessing_text)
@@ -110,7 +121,7 @@ def create_data_with_features(path_to_data):
     data['is_query_long'] = data['len_of_query'].apply(lambda l: int(l > 50))
     # TODO добавить генерацию признаков с дерева категорий (3 штуки)
     # TODO добавить расстояние левенштейна
-
+    # TODO добавить косинусное расстояние через обученный посимвольный векторайзер
     data = data.drop(columns=['category_id', 'query', 'category_name'])
 
     return data
