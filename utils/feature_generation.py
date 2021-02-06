@@ -2,22 +2,23 @@ import pandas as pd
 import Levenshtein
 import numpy as np
 from anytree.search import find
+from utils.category_tree import get_category_tree
 from utils.io_custom import read_pickle_object
 from scipy.spatial.distance import cosine
 import re
 
 
-def get_relative_depth(id, tree):
-    pass
+def find_node(id, tree):
+    return find(tree, lambda node: node.name == id)
 
+def get_relative_depth(id, tree):
+    return (find_node(id, tree).depth - find_node(872901, tree).depth)
 
 def count_children(id, tree):
-    pass
-
+    return len(find_node(id, tree).children)
 
 def count_descendants(id, tree):
-    pass
-
+    return len(find_node(id, tree).descendants)
 
 def preprocessing_text(s):
     """
@@ -112,6 +113,7 @@ def get_data_with_feature(data, path_to_data):
     :return data: pd.DataFrame - датафрейм с кучей признаков
     """
     brands, products = get_brands_and_products_lists(path_to_data)
+    root = get_category_tree(path_to_data)
 
     data['query'] = data['query'].apply(preprocessing_text)
     data['category_name'] = data['category_name'].apply(preprocessing_text)
@@ -164,8 +166,19 @@ def get_data_with_feature(data, path_to_data):
     )
     data['is_query_long'] = data['len_of_query'].apply(lambda l: int(l > 50))
 
-    # TODO добавить генерацию признаков с дерева категорий (3 штуки)
-
+    # TODO проверить генерацию признаков с дерева категорий (3 штуки):
+    data['relative_depth'] = data['category_id'].apply(
+        lambda category_id:
+        get_relative_depth(category_id, root)
+    )
+    data['children_count'] = data['category_id'].apply(
+        lambda category_id:
+        count_children(category_id, root)
+    )
+    data['descendants_count'] = data['category_id'].apply(
+        lambda category_id:
+        count_descendants(category_id, root)
+    )
     data['lev_dist'] = get_lev_dist_between_query_category(data['query'],
                                                            data['category_name'])
 
