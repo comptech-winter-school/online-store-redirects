@@ -27,6 +27,11 @@
 
 
 
+## Ссылки на документацию
+ТЗ https://docs.google.com/document/d/1o8JIeMlEbMW4oPwd5l8Nbk2Udt3HWPNuU8VmkNJgNuc/edit
+
+Общая документация проекта  https://docs.google.com/document/d/1903gAG3l-4KBe9XCsAV2WcRVkBxlLhliUQKAH-6I1Q4/edit#
+
 
 ## Команда
 
