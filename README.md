@@ -28,24 +28,28 @@
 
 
 ## Ссылки на документацию
-ТЗ https://docs.google.com/document/d/1o8JIeMlEbMW4oPwd5l8Nbk2Udt3HWPNuU8VmkNJgNuc/edit
 
-Общая документация проекта  https://docs.google.com/document/d/1903gAG3l-4KBe9XCsAV2WcRVkBxlLhliUQKAH-6I1Q4/edit#
+[Презентация] (https://docs.google.com/presentation/d/1N9Hj4b8ol7ExR1q2LkybQ0ht8RjJyS17826BlIaSNok/edit#slide=id.gbc22f9a0fe_0_40)
 
+[ТЗ] (https://docs.google.com/document/d/1o8JIeMlEbMW4oPwd5l8Nbk2Udt3HWPNuU8VmkNJgNuc/edit)
+
+[Общая документация проекта]  (https://docs.google.com/document/d/1903gAG3l-4KBe9XCsAV2WcRVkBxlLhliUQKAH-6I1Q4/edit#)
+
+##
 
 ## Команда
 
-Денис Скрипов	капитан
+Денис Скрипов - капитан
 
-Костя Печененко	разработчик
+Костя Печененко - разработчик
 
-Кирилл Муравьев	разработчик
+Кирилл Муравьев - разработчик
 
-Орлан Сарыглар	технический писатель
+Орлан Сарыглар -технический писатель
 
-Галина Смагина	EDA, разработчик
+Галина Смагина- EDA, разработчик
 
-Ольга Рудакова	аналитик
+Ольга Рудакова -аналитик
 
-Елена Аксенова	EDA 
+Елена Аксенова - EDA 
 
