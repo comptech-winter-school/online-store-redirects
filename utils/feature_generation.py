@@ -1,7 +1,21 @@
 import pandas as pd
 import Levenshtein
 import numpy as np
+from anytree.search import find
 
+
+def get_relative_depth(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    default = find(tree.root, lambda node: node.name == 872901)
+    return (node.depth - default.depth)
+
+def count_children(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    return len(node.children)
+
+def count_descendants(id, tree):
+    node = find(tree.root, lambda node: node.name == id)
+    return len(node.descendants)
 
 def preprocessing_text(s):
     """
