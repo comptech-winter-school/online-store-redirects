@@ -39,3 +39,20 @@ def get_category_tree():
     (tree_dict[-1] contains root of category tree)
     """
     return read_pickle_object('resourses/category_tree/category_tree.obj')
+
+from anytree.search import find
+
+def get_node(id):
+    root = get_category_tree()
+    return find(root, lambda node: node.name == id)
+
+def get_names():
+    categories = {}
+    with open("resourses/category_tree/categories.csv", "r") as f:
+        rdr = reader(f, delimiter=',')
+        for row in rdr:
+            if row[1] == "id":
+                continue
+            categories[int(row[1])] = row[5]
+    categories["root"] = "root"
+    return categories
