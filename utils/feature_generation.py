@@ -2,20 +2,20 @@ import pandas as pd
 import Levenshtein
 import numpy as np
 from anytree.search import find
+from utils.category_tree import get_category_tree
 
+
+def find_node(id, tree):
+    return find(tree, lambda node: node.name == id)
 
 def get_relative_depth(id, tree):
-    node = find(tree.root, lambda node: node.name == id)
-    default = find(tree.root, lambda node: node.name == 872901)
-    return (node.depth - default.depth)
+    return (find_node(id, tree).depth - find_node(872901, tree).depth)
 
 def count_children(id, tree):
-    node = find(tree.root, lambda node: node.name == id)
-    return len(node.children)
+    return len(find_node(id, tree).children)
 
 def count_descendants(id, tree):
-    node = find(tree.root, lambda node: node.name == id)
-    return len(node.descendants)
+    return len(find_node(id, tree).descendants)
 
 def preprocessing_text(s):
     """
@@ -83,6 +83,7 @@ def get_data_with_feature(data, path_to_data):
     :return data: pd.DataFrame - датафрейм с кучей признаков
     """
     brands, products = get_brands_and_products_lists(path_to_data)
+    root = get_category_tree(path_to_data)
 
     data['query'] = data['query'].apply(preprocessing_text)
     data['category_name'] = data['category_name'].apply(preprocessing_text)
@@ -135,6 +136,18 @@ def get_data_with_feature(data, path_to_data):
     )
     data['is_query_long'] = data['len_of_query'].apply(lambda l: int(l > 50))
     # TODO добавить генерацию признаков с дерева категорий (3 штуки)
+    data['relative_depth'] = data['category_id'].apply(
+        lambda category_id:
+        get_relative_depth(category_id, root)
+    )
+    data['children_count'] = data['category_id'].apply(
+        lambda category_id:
+        count_children(category_id, root)
+    )
+    data['descendants_count'] = data['category_id'].apply(
+        lambda category_id:
+        count_descendants(category_id, root)
+    )
     # TODO добавить расстояние левенштейна
     # TODO добавить косинусное расстояние через обученный посимвольный векторайзер
     data = data.drop(columns=['category_id', 'query', 'category_name'])
