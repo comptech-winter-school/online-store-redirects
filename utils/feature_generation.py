@@ -3,6 +3,9 @@ import Levenshtein
 import numpy as np
 from anytree.search import find
 from utils.category_tree import get_category_tree
+from utils.io_custom import read_pickle_object
+from scipy.spatial.distance import cosine
+import re
 
 
 def find_node(id, tree):
@@ -20,21 +23,11 @@ def count_descendants(id, tree):
 def preprocessing_text(s):
     """
     Предобработка текста.
-    Пояснение работы:
-    - замена некорректного символа
-    - удаление знаков препинания
-    - приведени всех символов к нижнему регистру
-    - удаление лишних пробелов
 
     :param s: str - входная строка.
     :return: str - обработанная строка.
     """
-    s = s.replace("&#039;", "'")
-    s = s.translate(str.maketrans(
-        '', '', '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'))
-    s = s.lower()
-    s = str(' '.join(s.split()))
-    return s
+    return str(" ".join(re.findall("[a-zA-Zа-яА-Я0-9]+", s)).lower())
 
 
 def get_levenshtein_distance_between(first_line, second_line):
@@ -47,6 +40,23 @@ def get_levenshtein_distance_between(first_line, second_line):
 
     """
     return Levenshtein.distance(first_line, second_line)
+
+
+def get_lev_dist_between_query_category(query, category):
+    """
+    Получает расстояние Левенштейна между двумя сериями.
+
+    :param query: pd.Series - запрос.
+    :param second_line: pd.Series - категория.
+    :return: np.array, int - расстояние левеншейна между соответствующими элементами серий.
+    """
+    levenshtein_distances = []
+
+    for query, category in zip(query.values, category.values):
+        current_distance = get_levenshtein_distance_between(query, category)
+        levenshtein_distances.append(current_distance)
+
+    return np.array(levenshtein_distances)
 
 
 def get_brands_and_products_lists(path_to_data):
@@ -72,6 +82,26 @@ def create_data_with_features(path_to_data):
     """
     data = pd.read_csv(path_to_data + "/data_for_model.csv")
     return get_data_with_feature(data, path_to_data)
+
+
+def get_cosine_dist_between_query_category(query, category, vectorizer):
+    """
+    Получает косинусное расстояние между двумя колонками датафрейма.
+
+    :param query: pd.Series - запрос.
+    :param second_line: pd.Series - категория.
+    :param vectorizer: sklearn.feature_extraction.text.TfidfVectorizer - предобученный векторайзер на запросах и категориях из трейн выборки.
+    :return: np.array, int - косинусное расстояние между соответствующими элементами серий.
+    """
+    query_sparse_matrix = vectorizer.transform(query.values)
+    category_sparse_matrix = vectorizer.transform(category.values)
+
+    distances = []
+    for query_vec, category_vec in zip(query_sparse_matrix, category_sparse_matrix):
+        current_distance = cosine(query_vec.toarray(), category_vec.toarray())
+        distances.append(current_distance)
+
+    return np.array(distances)
 
 
 def get_data_with_feature(data, path_to_data):
@@ -135,7 +165,8 @@ def get_data_with_feature(data, path_to_data):
         np.min([len(word) for word in query.split(' ')])
     )
     data['is_query_long'] = data['len_of_query'].apply(lambda l: int(l > 50))
-    # TODO добавить генерацию признаков с дерева категорий (3 штуки)
+
+    # TODO проверить генерацию признаков с дерева категорий (3 штуки):
     data['relative_depth'] = data['category_id'].apply(
         lambda category_id:
         get_relative_depth(category_id, root)
@@ -148,8 +179,18 @@ def get_data_with_feature(data, path_to_data):
         lambda category_id:
         count_descendants(category_id, root)
     )
-    # TODO добавить расстояние левенштейна
-    # TODO добавить косинусное расстояние через обученный посимвольный векторайзер
+    data['lev_dist'] = get_lev_dist_between_query_category(data['query'],
+                                                           data['category_name'])
+
+    vectorizer = read_pickle_object(path_to_data + '/vectorizer.obj')
+    data['cosine_dist'] = get_cosine_dist_between_query_category(data['query'],
+                                                                 data['category_name'],
+                                                                 vectorizer)
+
+    # data['number_of_children_category'] = get_relative_depth(data['category_id'])
+    # data['number_of_descendants_category'] = count_descendants(data['category_id'])
+    # data['category_depth'] = get_relative_depth(data['category_id'])
+
     data = data.drop(columns=['category_id', 'query', 'category_name'])
 
     return data
