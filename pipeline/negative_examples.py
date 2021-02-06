@@ -14,7 +14,7 @@ import random
 random.seed(0)
 
 
-def make_negative_examples_from_searches(json_path):
+def make_negative_examples_from_searches(json_path, path_to_data):
     """
     Using file "420_searches.json"
     1) Взять для каждого продукта категории и найти дальнюю категорию
@@ -35,8 +35,8 @@ def make_negative_examples_from_searches(json_path):
 
     with open(json_path) as ff:
         data = load(ff)
-    products = pd.read_csv('resourses/products.csv')
-    products_categories = pd.read_csv('resourses/products_categories.csv')
+    products = pd.read_csv(path_to_data + '/products.csv')
+    products_categories = pd.read_csv(path_to_data + '/products_categories.csv')
 
     def query_function(df):
         query = []

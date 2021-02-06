@@ -17,5 +17,5 @@ def get_cousin(node):
     n = len(cousins)
     return cousins[randint(0, n - 1)]
 
-def get_cousin_id(id):
-    return int(get_cousin(get_node(id)).name)
+def get_cousin_id(id, path_to_data):
+    return int(get_cousin(get_node(id, path_to_data)).name)
