@@ -2,6 +2,7 @@ import pandas as pd
 import Levenshtein
 import numpy as np
 from anytree.search import find
+import re
 
 
 def get_relative_depth(id, tree):
@@ -9,13 +10,16 @@ def get_relative_depth(id, tree):
     default = find(tree.root, lambda node: node.name == 872901)
     return (node.depth - default.depth)
 
+
 def count_children(id, tree):
     node = find(tree.root, lambda node: node.name == id)
     return len(node.children)
 
+
 def count_descendants(id, tree):
     node = find(tree.root, lambda node: node.name == id)
     return len(node.descendants)
+
 
 def preprocessing_text(s):
     """
@@ -29,12 +33,7 @@ def preprocessing_text(s):
     :param s: str - входная строка.
     :return: str - обработанная строка.
     """
-    s = s.replace("&#039;", "'")
-    s = s.translate(str.maketrans(
-        '', '', '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'))
-    s = s.lower()
-    s = str(' '.join(s.split()))
-    return s
+    return " ".join(re.findall("[a-zA-Zа-яА-Я0-9]+", s)).lower()
 
 
 def get_levenshtein_distance_between(first_line, second_line):
